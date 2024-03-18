@@ -1,0 +1,316 @@
+﻿Program.Sub.ScreenSU.Start
+Gui.f_Main..Create(BaseForm)
+Gui.f_Main..Caption("Copy Cost to Alt Cost")
+Gui.f_Main..Size(242,190)
+Gui.f_Main..MinX(0)
+Gui.f_Main..MinY(0)
+Gui.f_Main..Position(0,0)
+Gui.f_Main..AlwaysOnTop(False)
+Gui.f_Main..FontName("Tahoma")
+Gui.f_Main..FontSize(8.25)
+Gui.f_Main..ControlBox(True)
+Gui.f_Main..MaxButton(False)
+Gui.f_Main..MinButton(True)
+Gui.f_Main..MousePointer(0)
+Gui.f_Main..Moveable(True)
+Gui.f_Main..Sizeable(False)
+Gui.f_Main..ShowInTaskBar(True)
+Gui.f_Main..TitleBar(True)
+Gui.f_Main..Event(UnLoad,f_Main_Unload)
+Gui.f_Main..ShowCompanyCode(False)
+Gui.f_Main.lblBegPart.Create(Label,"Beginning Part:",True,73,13,0,7,7,True,0,"Tahoma",8.25,,0,0)
+Gui.f_Main.lblBegPart.BorderStyle(0)
+Gui.f_Main.lblEndPart.Create(Label,"Ending Part:",True,59,13,0,7,53,True,0,"Tahoma",8.25,,0,0)
+Gui.f_Main.lblEndPart.BorderStyle(0)
+Gui.f_Main.txtBegPart.Create(TextBox,"",True,197,20,0,7,23,True,0,"Tahoma",8.25,,1)
+Gui.f_Main.txtBegPart.Event(LostFocus,txtBegPart_LostFocus)
+Gui.f_Main.txtEndPart.Create(TextBox,"",True,197,20,0,7,69,True,0,"Tahoma",8.25,,1)
+Gui.f_Main.cmdBegPartBrowse.Create(Button)
+Gui.f_Main.cmdBegPartBrowse.Enabled(True)
+Gui.f_Main.cmdBegPartBrowse.Visible(True)
+Gui.f_Main.cmdBegPartBrowse.Zorder(0)
+Gui.f_Main.cmdBegPartBrowse.Size(25,20)
+Gui.f_Main.cmdBegPartBrowse.Position(210,23)
+Gui.f_Main.cmdBegPartBrowse.Caption("^")
+Gui.f_Main.cmdBegPartBrowse.FontName("Tahoma")
+Gui.f_Main.cmdBegPartBrowse.FontSize(8.25)
+Gui.f_Main.cmdBegPartBrowse.Event(Click,cmdBegPartBrowse_Click)
+Gui.f_Main.cmdEndPartBrowse.Create(Button)
+Gui.f_Main.cmdEndPartBrowse.Enabled(True)
+Gui.f_Main.cmdEndPartBrowse.Visible(True)
+Gui.f_Main.cmdEndPartBrowse.Zorder(0)
+Gui.f_Main.cmdEndPartBrowse.Size(25,20)
+Gui.f_Main.cmdEndPartBrowse.Position(210,69)
+Gui.f_Main.cmdEndPartBrowse.Caption("^")
+Gui.f_Main.cmdEndPartBrowse.FontName("Tahoma")
+Gui.f_Main.cmdEndPartBrowse.FontSize(8.25)
+Gui.f_Main.cmdEndPartBrowse.Event(Click,cmdEndPartBrowse_Click)
+Gui.f_Main.chkCopyAll.Create(CheckBox)
+Gui.f_Main.chkCopyAll.Enabled(True)
+Gui.f_Main.chkCopyAll.Visible(True)
+Gui.f_Main.chkCopyAll.Zorder(0)
+Gui.f_Main.chkCopyAll.Size(196,20)
+Gui.f_Main.chkCopyAll.Position(7,101)
+Gui.f_Main.chkCopyAll.Caption("Copy Cost to Alt Cost for All Parts")
+Gui.f_Main.chkCopyAll.FontName("Tahoma")
+Gui.f_Main.chkCopyAll.FontSize(8.25)
+Gui.f_Main.chkCopyAll.Event(Change,chkCopyAll_Change)
+Gui.f_Main.cmdCancel.Create(Button)
+Gui.f_Main.cmdCancel.Enabled(True)
+Gui.f_Main.cmdCancel.Visible(True)
+Gui.f_Main.cmdCancel.Zorder(0)
+Gui.f_Main.cmdCancel.Size(66,20)
+Gui.f_Main.cmdCancel.Position(7,133)
+Gui.f_Main.cmdCancel.Caption("Cancel")
+Gui.f_Main.cmdCancel.FontName("Tahoma")
+Gui.f_Main.cmdCancel.FontSize(8.25)
+Gui.f_Main.cmdCancel.Event(Click,cmdCancel_Click)
+Gui.f_Main.cmdProcess.Create(Button)
+Gui.f_Main.cmdProcess.Enabled(True)
+Gui.f_Main.cmdProcess.Visible(True)
+Gui.f_Main.cmdProcess.Zorder(0)
+Gui.f_Main.cmdProcess.Size(66,20)
+Gui.f_Main.cmdProcess.Position(169,133)
+Gui.f_Main.cmdProcess.Caption("Process")
+Gui.f_Main.cmdProcess.FontName("Tahoma")
+Gui.f_Main.cmdProcess.FontSize(8.25)
+Gui.f_Main.cmdProcess.Event(Click,cmdProcess_Click)
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+V.Global.bError.Declare(Boolean)
+V.Global.bUnattended.Declare(Boolean)
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+F.Intrinsic.Control.Try
+V.Local.bIsInGrp.Declare(Boolean)
+'Copy Cost to Alt Cost for Inventory Parts
+'Written for Betts Industries
+'Written by Ashley Collins
+'October 5, 2020
+Function.Intrinsic.UI.UsePixels ' Allows you to use Pixels instead of Twips throughout
+
+'open the connection to the database
+F.ODBC.Connection!con.OpenConnection(V.Ambient.PDSN, V.Ambient.PUser, V.Ambient.PPass)
+F.Global.Security.IsInGroup(V.Caller.User,"ALTCOST", V.Local.bIsInGrp)
+
+F.Intrinsic.Control.If(V.Local.bIsInGrp,=,True)
+	Gui.f_Main.chkCopyAll.Enabled(True)
+F.Intrinsic.Control.Else
+	Gui.f_Main.chkCopyAll.Enabled(False)
+F.Intrinsic.Control.EndIf
+
+'show the form
+Gui.f_Main..Show
+
+F.Intrinsic.Control.Catch
+	F.Intrinsic.Control.CallSub(ErrorMessage, "ErrorNumber", V.Ambient.ErrorNumber, "ErrorDescription", V.Ambient.ErrorDescription, "Subroutine", V.Ambient.CurrentSubroutine, "UNATTENDED", V.Global.bUnattended, "Project", "6114", "ProjectTitle", "Copy Cost to Alt Cost", "Callback", "f_Main_Unload")
+F.Intrinsic.Control.EndTry
+Program.Sub.Main.End
+
+Program.Sub.txtBegPart_LostFocus.Start
+F.Intrinsic.Control.Try
+
+Gui.f_Main.txtEndPart.Text(V.Screen.f_Main!txtBegPart.Text)
+
+F.Intrinsic.Control.Catch
+	F.Intrinsic.Control.CallSub(ErrorMessage, "ErrorNumber", V.Ambient.ErrorNumber, "ErrorDescription", V.Ambient.ErrorDescription, "Subroutine", V.Ambient.CurrentSubroutine, "UNATTENDED", V.Global.bUnattended, "Project", "6114", "ProjectTitle", "Copy Cost to Alt Cost", "Callback", "f_Main_Unload")
+F.Intrinsic.Control.EndTry
+Program.Sub.txtBegPart_LostFocus.End
+
+Program.Sub.cmdBegPartBrowse_Click.Start
+F.Intrinsic.Control.Try
+V.Local.sFullPart.Declare(String)
+V.Local.sPart.Declare(String)
+V.Local.sRet.Declare(String)
+V.Local.sRev.Declare(String)
+
+F.Intrinsic.UI.CommonBrowser(100, "", V.Local.sRet)
+F.Intrinsic.Control.If(V.Local.sRet,<>,"***CANCEL***")
+	F.Intrinsic.String.Split(V.Local.sRet,"*!*", V.Local.sRet)
+	V.Local.sPart.Set(V.Local.sRet(0))
+	V.Local.sRev.Set(V.Local.sRet(1))
+	F.Intrinsic.String.RPad(V.Local.sPart, " ", 17, V.Local.sPart)
+	F.Intrinsic.String.LPad(V.Local.sRev, " ", 3, V.Local.sRev)
+	F.Intrinsic.String.Build("{0}{1}", V.Local.sPart, V.Local.sRev, V.Local.sFullPart)
+	Gui.f_Main.txtBegPart.Text(V.Local.sFullPart)
+	Gui.f_Main.txtEndPart.Text(v.Local.sFullPart)
+F.Intrinsic.Control.Else
+	F.Intrinsic.UI.Msgbox("You must select a beginning part!", "Required Field")
+F.Intrinsic.Control.EndIf
+
+F.Intrinsic.Control.Catch
+	F.Intrinsic.Control.CallSub(ErrorMessage, "ErrorNumber", V.Ambient.ErrorNumber, "ErrorDescription", V.Ambient.ErrorDescription, "Subroutine", V.Ambient.CurrentSubroutine, "UNATTENDED", V.Global.bUnattended, "Project", "6114", "ProjectTitle", "Copy Cost to Alt Cost", "Callback", "f_Main_Unload")
+F.Intrinsic.Control.EndTry
+Program.Sub.cmdBegPartBrowse_Click.End
+
+Program.Sub.cmdEndPartBrowse_Click.Start
+F.Intrinsic.Control.Try
+V.Local.sFullPart.Declare(String)
+V.Local.sPart.Declare(String)
+V.Local.sRet.Declare(String)
+V.Local.sRev.Declare(String)
+
+F.Intrinsic.UI.CommonBrowser(100, "", V.Local.sRet)
+F.Intrinsic.Control.If(V.Local.sRet,<>,"***CANCEL***")
+	F.Intrinsic.String.Split(V.Local.sRet,"*!*", V.Local.sRet)
+	V.Local.sPart.Set(V.Local.sRet(0))
+	V.Local.sRev.Set(V.Local.sRet(1))
+	F.Intrinsic.String.RPad(V.Local.sPart, " ", 17, V.Local.sPart)
+	F.Intrinsic.String.LPad(V.Local.sRev, " ", 3, V.Local.sRev)
+	F.Intrinsic.String.Build("{0}{1}", V.Local.sPart, V.Local.sRev, V.Local.sFullPart)
+	Gui.f_Main.txtEndPart.Text(v.Local.sFullPart)
+F.Intrinsic.Control.ElseIf(V.Screen.f_Main!txtEndPart.Text,=,"")
+	F.Intrinsic.UI.Msgbox("You must select an ending part!", "Required Field")
+F.Intrinsic.Control.EndIf
+
+F.Intrinsic.Control.Catch
+	F.Intrinsic.Control.CallSub(ErrorMessage, "ErrorNumber", V.Ambient.ErrorNumber, "ErrorDescription", V.Ambient.ErrorDescription, "Subroutine", V.Ambient.CurrentSubroutine, "UNATTENDED", V.Global.bUnattended, "Project", "6114", "ProjectTitle", "Copy Cost to Alt Cost", "Callback", "f_Main_Unload")
+F.Intrinsic.Control.EndTry
+Program.Sub.cmdEndPartBrowse_Click.End
+
+Program.Sub.chkCopyAll_Change.Start
+F.Intrinsic.Control.Try
+
+F.Intrinsic.Control.If(V.Screen.f_Main!chkCopyAll.Value,=,1)
+	Gui.f_Main.txtBegPart.Enabled(False)
+	Gui.f_Main.cmdBegPartBrowse.Enabled(False)
+	Gui.f_Main.txtEndPart.Enabled(False)
+	Gui.f_Main.cmdEndPartBrowse.Enabled(False)
+F.Intrinsic.Control.Else
+	Gui.f_Main.txtBegPart.Enabled(True)
+	Gui.f_Main.cmdBegPartBrowse.Enabled(True)
+	Gui.f_Main.txtEndPart.Enabled(True)
+	Gui.f_Main.cmdEndPartBrowse.Enabled(True)
+F.Intrinsic.Control.EndIf
+
+F.Intrinsic.Control.Catch
+	F.Intrinsic.Control.CallSub(ErrorMessage, "ErrorNumber", V.Ambient.ErrorNumber, "ErrorDescription", V.Ambient.ErrorDescription, "Subroutine", V.Ambient.CurrentSubroutine, "UNATTENDED", V.Global.bUnattended, "Project", "6114", "ProjectTitle", "Copy Cost to Alt Cost", "Callback", "f_Main_Unload")
+F.Intrinsic.Control.EndTry
+Program.Sub.chkCopyAll_Change.End
+
+Program.Sub.cmdProcess_Click.Start
+F.Intrinsic.Control.Try
+V.Local.iRet.Declare(Long)
+V.Local.sBegPart.Declare(String)
+V.Local.sEndPart.Declare(String)
+V.Local.sSQL.Declare(String)
+V.Local.sTime.Declare(String)
+
+V.Local.sTime.Set(V.Ambient.Time)
+F.Intrinsic.String.Format(V.Local.sTime, "HhNnSs", V.Local.sTime)
+F.Intrinsic.String.RPad(V.Local.sTime,0,8, V.Local.sTime)
+
+'check to see if the check box for all boxes is checked
+F.Intrinsic.Control.If(V.Screen.f_Main!chkCopyAll.Value,=,1)
+	F.Intrinsic.UI.Msgbox("Are you sure you want to copy Cost to Alt Cost for all parts?", "Warning", 4, V.Local.iRet)
+	F.Intrinsic.Control.If(V.Local.iRet,=,6)
+		V.Local.sSQL.Set("UPDATE T1 SET T1.AMT_ALT_COST = T2.COST FROM INVENTORY_MSTR T1 INNER JOIN INVENTORY_COST T2 ON T1.PART = T2.PART")
+		F.ODBC.Connection!con.Execute(V.Local.sSQL)
+		F.Intrinsic.String.Build("UPDATE INVENTORY_MSTR SET DATE_LAST_CHG = '{0}', TIME_LAST_CHG = '{1}', WHO_CHG_LAST = 'ALTCOST' ", V.Ambient.Date.FormatYYMMDD, V.Local.sTime, V.Local.sSQL)
+		F.ODBC.Connection!con.Execute(V.Local.sSQL)
+	F.Intrinsic.Control.Else
+		F.Intrinsic.Control.ExitSub
+	F.Intrinsic.Control.EndIf
+F.Intrinsic.Control.Else
+	V.Local.sBegPart.Set(V.Screen.f_Main!txtBegPart.Text)
+	V.Local.sEndPart.Set(V.Screen.f_Main!txtBegPart.Text)
+	F.Intrinsic.String.Build("UPDATE T1 SET T1.AMT_ALT_COST = T2.COST FROM INVENTORY_MSTR T1 INNER JOIN INVENTORY_COST T2 ON T1.PART = T2.PART WHERE T1.PART >= '{0}' AND T1.PART <= '{1}' ", V.Local.sBegPart, V.Local.sEndPart, V.Local.sSQL)
+	F.ODBC.Connection!con.Execute(V.Local.sSQL)
+	F.Intrinsic.String.Build("UPDATE INVENTORY_MSTR SET DATE_LAST_CHG = '{0}', TIME_LAST_CHG = '{1}', WHO_CHG_LAST = 'ALTCOST' WHERE PART >= '{2}' AND PART <= '{3}'", V.Ambient.Date.FormatYYMMDD, V.Local.sTime, v.Local.sBegPart, v.Local.sEndPart, V.Local.sSQL)
+	F.ODBC.Connection!con.Execute(V.Local.sSQL)
+F.Intrinsic.Control.EndIf
+
+Gui.f_Main.chkCopyAll.Value(0)
+Gui.f_Main.txtBegPart.Text("")
+Gui.f_Main.txtEndPart.Text("")
+F.Intrinsic.UI.Msgbox("Copy Complete!")
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Catch
+	F.Intrinsic.Control.CallSub(ErrorMessage, "ErrorNumber", V.Ambient.ErrorNumber, "ErrorDescription", V.Ambient.ErrorDescription, "Subroutine", V.Ambient.CurrentSubroutine, "UNATTENDED", V.Global.bUnattended, "Project", "6114", "ProjectTitle", "Copy Cost to Alt Cost", "Callback", "f_Main_Unload")
+F.Intrinsic.Control.EndTry
+Program.Sub.cmdProcess_Click.End
+
+Program.Sub.cmdCancel_Click.Start
+F.Intrinsic.Control.Try
+
+F.Intrinsic.Control.CallSub(f_Main_Unload)
+
+F.Intrinsic.Control.Catch
+	F.Intrinsic.Control.CallSub(ErrorMessage, "ErrorNumber", V.Ambient.ErrorNumber, "ErrorDescription", V.Ambient.ErrorDescription, "Subroutine", V.Ambient.CurrentSubroutine, "UNATTENDED", V.Global.bUnattended, "Project", "6114", "ProjectTitle", "Copy Cost to Alt Cost", "Callback", "f_Main_Unload")
+F.Intrinsic.Control.EndTry
+Program.Sub.cmdCancel_Click.End
+
+Program.Sub.f_Main_Unload.Start
+F.Intrinsic.Control.Try
+'close the connection
+F.ODBC.Connection!con.Close
+'end the program
+F.Intrinsic.Control.End
+
+F.Intrinsic.Control.Catch
+	F.Intrinsic.Control.CallSub(ErrorMessage, "ErrorNumber", V.Ambient.ErrorNumber, "ErrorDescription", V.Ambient.ErrorDescription, "Subroutine", V.Ambient.CurrentSubroutine, "UNATTENDED", V.Global.bUnattended, "Project", "6114", "ProjectTitle", "Copy Cost to Alt Cost", "Callback", "f_Main_Unload")
+F.Intrinsic.Control.EndTry
+Program.Sub.f_Main_Unload.End
+
+Program.Sub.ErrorMessage.Start
+'basic error message for replacing catch block
+'this is really just for when printing the message and ending program
+'pass error number, error description, current subroutine
+'optional callback sub, this will be called before ending
+'optional unattended parameters, those subs may not exist if not using them but won't be called
+F.Intrinsic.Control.Try
+
+V.Local.iError.Declare(Long)
+V.Local.sErrorDescription.Declare(String)
+V.Local.sSubroutine.Declare(String)
+V.Local.sError.Declare(String)
+V.Local.bExists.Declare(Boolean)
+V.Local.sCallback.Declare(String)
+
+V.Local.iError.Set(V.Args.ErrorNumber)
+V.Local.sErrorDescription.Set(V.Args.ErrorDescription)
+V.Local.sSubroutine.Set(V.Args.Subroutine)
+
+'make sure we aren't in an error loop
+F.Intrinsic.Control.If(V.Global.bError)
+	F.Intrinsic.Control.End
+
+F.Intrinsic.Control.EndIf
+V.Global.bError.Set(True)
+
+F.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}", V.Caller.ScriptFile, V.Ambient.Newline, V.Local.sSubroutine, V.Local.iError, V.Local.sErrorDescription, V.Ambient.GABVersion, V.Local.sError)
+
+F.Intrinsic.Variable.ArgExists("UNATTENDED", V.Local.bExists)
+F.Intrinsic.Control.If(V.Local.bExists)
+	F.Intrinsic.Control.If(V.Args.UNATTENDED)
+		F.Intrinsic.Control.CallSub(UnattendedErrorMessage, "MESSAGE", V.Local.sError, "PROJECT", V.Args.PROJECT, "PROJECTTITLE", V.Args.PROJECTTITLE)
+	F.Intrinsic.Control.Else
+		F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.EndIf
+F.Intrinsic.Control.Else
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+F.Intrinsic.Control.EndIf
+
+F.Intrinsic.Variable.ArgExists("Callback", V.Local.bExists)
+F.Intrinsic.Control.If(V.Local.bExists)
+	V.Local.sCallback.Set(V.Args.Callback.Trim)
+	F.Intrinsic.Control.CallSub(V.Local.sCallback)
+F.Intrinsic.Control.EndIf
+
+F.Intrinsic.Control.End
+
+F.Intrinsic.Control.Catch
+	F.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",V.Caller.ScriptFile,V.Ambient.Newline,V.Ambient.CurrentSubroutine,V.Ambient.ErrorNumber,V.Ambient.ErrorDescription,V.Ambient.GABVersion,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.End
+F.Intrinsic.Control.EndTry
+Program.Sub.ErrorMessage.End
+
+Program.Sub.Comments.Start
+${$5$}$3.0.0.0$}$1
+${$6$}$acollins$}$20201022153416724$}$h98hERc2yV72q0GaUGlwSaoK/aefTdVkg+e2yth67TbXac3ramsqZpEcSaebaNlLJiguf4vsvI/jk1bBUixVKA==
+Program.Sub.Comments.End
